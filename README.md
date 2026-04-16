@@ -48,10 +48,6 @@ Ava brauseris:
 http://127.0.0.1:8404/stats
 ```
 
-## Screenshot
-
-![HAProxy stats](images/haproxy_stats.png)
-
 ---
 
 # 🧩 2. WordPress + PostgreSQL replication
@@ -99,10 +95,6 @@ Ava brauseris:
 ```
 http://127.0.0.1:8081
 ```
-
-## Screenshot
-
-![WordPress](images/wordpress.png)
 
 ---
 
@@ -182,10 +174,6 @@ Tulemus:
 
 ---
 
-## Screenshot
-
-![Dump restore](images/dump_restore.png)
-
 ---
 
 # 🔐 Turvalisuse lahenduste võrdlus
@@ -202,23 +190,3 @@ Tulemus:
 - Väga oluline
 - Lihtne realiseerida (OpenSSL)
 
----
-
-# 🧠 Kokkuvõte
-
-Projekt demonstreerib:
-
-- Koormuse jaotamist (HAProxy)
-- Andmebaasi replikatsiooni (PostgreSQL)
-- Rakenduse ja DB integratsiooni (WordPress)
-- Andmete turvalisust (encryption + backup)
-
----
-
-# 🚀 Kasutatud tehnoloogiad
-
-- Docker / Docker Compose
-- HAProxy
-- PostgreSQL
-- WordPress
-- OpenSSL
