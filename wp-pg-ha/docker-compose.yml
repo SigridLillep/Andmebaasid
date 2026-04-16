@@ -1,0 +1,63 @@
+services:
+  wp:
+    build: ./wp
+    ports:
+      - "8081:80"
+    depends_on:
+      - pg1
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - appnet
+
+  pg1:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=wpuser
+      - POSTGRES_PASSWORD=Passw0rd
+      - POSTGRES_DB=wordpress
+      - REPL_USER=repl
+      - REPL_PASSWORD=Passw0rd
+    command:
+      - "postgres"
+      - "-c"
+      - "listen_addresses=*"
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+      - "-c"
+      - "hot_standby=on"
+    volumes:
+      - pg1_data:/var/lib/postgresql/data
+      - ./pg/00-primary-init.sh:/docker-entrypoint-initdb.d/00-primary-init.sh:ro
+    networks:
+      - appnet
+
+  pg2:
+    image: postgres:16
+    depends_on:
+      - pg1
+    environment:
+      - POSTGRES_USER=wpuser
+      - POSTGRES_PASSWORD=Passw0rd
+      - POSTGRES_DB=wordpress
+      - PRIMARY_HOST=pg1
+      - REPL_USER=repl
+      - REPL_PASSWORD=Passw0rd
+    entrypoint: ["/bin/bash", "/replica-entrypoint.sh"]
+    volumes:
+      - pg2_data:/var/lib/postgresql/data
+      - ./pg/replica-entrypoint.sh:/replica-entrypoint.sh:ro
+    networks:
+      - appnet
+
+networks:
+  appnet:
+
+volumes:
+  wp_data:
+  pg1_data:
+  pg2_data:

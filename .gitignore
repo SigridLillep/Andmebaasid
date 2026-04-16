@@ -1,0 +1,15 @@
+.env
+*.log
+*.sql
+*.dump
+
+# docker volumes
+pg_data/
+pg1_data/
+pg2_data/
+wp_data/
+data/
+
+# editor crap
+*.swp
+.DS_Store

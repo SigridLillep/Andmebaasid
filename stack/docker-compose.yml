@@ -1,0 +1,100 @@
+services:
+
+  haproxy:
+    image: haproxy:2.9
+    ports:
+      - "80:80"
+      - "8404:8404"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - web1
+      - web2
+      - web3
+    networks:
+      - front
+      - back
+
+  web1:
+    build: ./web
+    environment:
+      - INSTANCE=web1
+      - DB_HOST=pgsql-primary
+      - DB_NAME=appdb
+      - DB_USER=appuser
+      - DB_PASS=Passw0rd
+    networks:
+      - back
+
+  web2:
+    build: ./web
+    environment:
+      - INSTANCE=web2
+      - DB_HOST=pgsql-primary
+      - DB_NAME=appdb
+      - DB_USER=appuser
+      - DB_PASS=Passw0rd
+    networks:
+      - back
+
+  web3:
+    build: ./web
+    environment:
+      - INSTANCE=web3
+      - DB_HOST=pgsql-primary
+      - DB_NAME=appdb
+      - DB_USER=appuser
+      - DB_PASS=Passw0rd
+    networks:
+      - back
+
+  pgsql-primary:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=appuser
+      - POSTGRES_PASSWORD=Passw0rd
+      - POSTGRES_DB=appdb
+      - REPL_USER=repl
+      - REPL_PASSWORD=Passw0rd
+    command:
+      - "postgres"
+      - "-c"
+      - "listen_addresses=*"
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+      - "-c"
+      - "hot_standby=on"
+    volumes:
+      - pg_primary:/var/lib/postgresql/data
+      - ./pg/00-primary-init.sh:/docker-entrypoint-initdb.d/00-primary-init.sh:ro
+    networks:
+      - back
+
+  pgsql-replica:
+    image: postgres:16
+    depends_on:
+      - pgsql-primary
+    environment:
+      - POSTGRES_USER=appuser
+      - POSTGRES_PASSWORD=Passw0rd
+      - POSTGRES_DB=appdb
+      - PRIMARY_HOST=pgsql-primary
+      - REPL_USER=repl
+      - REPL_PASSWORD=Passw0rd
+    entrypoint: ["/bin/bash", "/replica-entrypoint.sh"]
+    volumes:
+      - pg_replica:/var/lib/postgresql/data
+      - ./pg/replica-entrypoint.sh:/replica-entrypoint.sh:ro
+    networks:
+      - back
+networks:
+  front:
+  back:
+
+volumes:
+  pg_primary:
+  pg_replica:
